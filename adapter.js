@@ -47,7 +47,9 @@ export default function (_env) {
    * @param {string} name
    * @returns {Promise<Response>}
    */
-  async function createDatabase(name) {}
+  async function createDatabase(name) {
+    // code goes here
+  }
 
   /**
    * @param {string} name
@@ -98,9 +100,14 @@ export default function (_env) {
    * @param {ListDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function listDocuments(
-    { db, limit, startkey, endkey, keys, descending },
-  ) {}
+  async function listDocuments({
+    db,
+    limit,
+    startkey,
+    endkey,
+    keys,
+    descending
+  }) {}
 
   /**
    *
@@ -119,6 +126,6 @@ export default function (_env) {
     queryDocuments,
     indexDocuments,
     listDocuments,
-    bulkDocuments,
+    bulkDocuments
   });
 }
