@@ -1,5 +1,11 @@
 // deno-lint-ignore-file no-unused-vars
 
+import { crocks } from "./deps.js";
+import * as lib from "./lib/dynamodb.js";
+import { notOk, okDoc, okDocs, okId } from "./lib/utils.js";
+
+const { Async } = crocks;
+
 /**
  *
  * @typedef {Object} CreateDocumentArgs
@@ -42,50 +48,89 @@
  * @property {boolean} ok
  */
 
-export default function (_env) {
+/**
+ *
+ * @param {{ DynamoDB: any, factory: any }} aws
+ * @returns
+ */
+
+export default function (ddb) {
+  const client = {
+    createDatabase: Async.fromPromise(lib.createDatabase(ddb)),
+    removeDatabase: Async.fromPromise(lib.removeDatabase(ddb)),
+    createDocument: Async.fromPromise(lib.createDocument(ddb)),
+    retrieveDocument: Async.fromPromise(lib.retrieveDocument(ddb)),
+    updateDocument: Async.fromPromise(lib.updateDocument(ddb)),
+    removeDocument: Async.fromPromise(lib.removeDocument(ddb)),
+    queryDocuments: Async.fromPromise(lib.queryDocuments(ddb)),
+    listDocuments: Async.fromPromise(lib.listDocuments(ddb))
+  };
+
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
-  async function createDatabase(name) {
-    // code goes here
+
+  function createDatabase(name) {
+    return client.createDatabase(name).bimap(notOk, okDoc).toPromise();
   }
 
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
-  async function removeDatabase(name) {}
+  function removeDatabase(name) {
+    return client.removeDatabase(name).bimap(notOk, okDoc).toPromise();
+  }
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function createDocument({ db, id, doc }) {}
+  function createDocument({ db, id, doc }) {
+    return client
+      .createDocument({ db, id, doc })
+      .bimap(notOk, okId)
+      .toPromise();
+  }
 
   /**
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function retrieveDocument({ db, id }) {}
+  function retrieveDocument({ db, id }) {
+    return client.retrieveDocument({ db, id }).bimap(notOk, okDoc).toPromise();
+  }
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function updateDocument({ db, id, doc }) {}
+  function updateDocument({ db, id, doc }) {
+    return client
+      .updateDocument({ db, id, doc })
+      .bimap(notOk, okId)
+      .toPromise();
+  }
 
   /**
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function removeDocument({ db, id }) {}
+  function removeDocument({ db, id }) {
+    return client.removeDocument({ db, id }).bimap(notOk, okId).toPromise();
+  }
 
   /**
    * @param {QueryDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function queryDocuments({ db, query }) {}
+  async function queryDocuments({ query }) {
+    // pk = db, query = partiql
+    // do simple select *
+    console.log("query: ", query);
+    return client.queryDocuments(query).bimap(notOk, okDoc).toPromise();
+  }
 
   /**
    *
@@ -93,7 +138,11 @@ export default function (_env) {
    * @returns {Promise<Response>}
    */
 
-  async function indexDocuments({ db, name, fields }) {}
+  async function indexDocuments({ db, name, fields }) {
+    // schema json object containing db, name, fields
+    // insert into meta doc each new index
+    // tbd
+  }
 
   /**
    *
@@ -107,14 +156,36 @@ export default function (_env) {
     endkey,
     keys,
     descending
-  }) {}
+  }) {
+    return client
+      .listDocuments({
+        db,
+        limit,
+        startkey,
+        endkey,
+        keys,
+        descending
+      })
+      .bimap(notOk, okDocs)
+      .toPromise();
+    // pk = db, sk = startkey, endkey, keys
+    // use cases:
+    // 1. query using only db => sends all docs in db
+    // 2. limit => sends back first n docs in db
+    // 3. startkey and endkey => sends back all docs in range (inclusive)
+    // 4. keys => sends back all docs with the sk matching each key in array of keys
+    // descending => responses are returned in descending order; used with any
+  }
 
   /**
    *
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function bulkDocuments({ db, docs }) {}
+  async function bulkDocuments({ db, docs }) {
+    // could be put or delete
+    // pk = db, sk = id from each docs (may need error check that docs have an id)
+  }
 
   return Object.freeze({
     createDatabase,
