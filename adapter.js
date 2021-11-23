@@ -2,7 +2,7 @@
 
 import { crocks } from "./deps.js";
 import * as lib from "./lib/dynamodb.js";
-import { notOk, okDoc, okDocs, okId, ok, okQuery } from "./lib/utils.js";
+import { notOk, okDoc, okDocs, okId, ok, okQuery, notOkCreateDoc } from "./lib/utils.js";
 
 const { Async } = crocks;
 
@@ -90,7 +90,7 @@ export default function (ddb) {
   function createDocument({ db, id, doc }) {
     return client
       .createDocument({ db, id, doc })
-      .bimap(notOk, okId)
+      .bimap(notOkCreateDoc, okId)
       .toPromise();
   }
 
