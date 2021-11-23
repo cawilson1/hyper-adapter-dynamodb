@@ -2,7 +2,7 @@
 
 import { crocks } from "./deps.js";
 import * as lib from "./lib/dynamodb.js";
-import { notOk, okDoc, okDocs, okId, ok, okQuery, notOkCreateDoc } from "./lib/utils.js";
+import { notOk, okDoc, okDocs, okId, ok, okQuery, notOkCreateDoc } from "./lib/responseBuilders.js";
 
 const { Async } = crocks;
 
