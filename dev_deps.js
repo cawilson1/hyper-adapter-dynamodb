@@ -1,5 +1,5 @@
 // Harness deps
-export { default as appOpine } from "https://x.nest.land/hyper-app-opine@1.1.1/mod.js";
+export { default as appOpine } from "https://x.nest.land/hyper-app-opine@1.2.7/mod.js";
 export { default as core } from "https://x.nest.land/hyper@1.3.11/mod.js";
 
 // Schema parsing deps
