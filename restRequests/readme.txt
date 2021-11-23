@@ -1,0 +1,1 @@
+These are to be used with the REST Client extension for VS code
