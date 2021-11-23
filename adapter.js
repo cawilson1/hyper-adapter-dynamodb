@@ -2,7 +2,16 @@
 
 import { crocks } from "./deps.js";
 import * as lib from "./lib/dynamodb.js";
-import { notOk, okDoc, okDocs, okId, ok, okQuery, notOkCreateDoc } from "./lib/responseBuilders.js";
+import {
+  notOk,
+  okGetDoc,
+  okDocs,
+  okId,
+  ok,
+  okQuery,
+  notOkCreateDoc,
+  notOkGetDoc,
+} from "./lib/responseBuilders.js";
 
 const { Async } = crocks;
 
@@ -63,7 +72,7 @@ export default function (ddb) {
     updateDocument: Async.fromPromise(lib.updateDocument(ddb)),
     removeDocument: Async.fromPromise(lib.removeDocument(ddb)),
     queryDocuments: Async.fromPromise(lib.queryDocuments(ddb)),
-    listDocuments: Async.fromPromise(lib.listDocuments(ddb))
+    listDocuments: Async.fromPromise(lib.listDocuments(ddb)),
   };
 
   /**
@@ -99,7 +108,10 @@ export default function (ddb) {
    * @returns {Promise<Response>}
    */
   function retrieveDocument({ db, id }) {
-    return client.retrieveDocument({ db, id }).bimap(notOk, okDoc).toPromise();
+    return client
+      .retrieveDocument({ db, id })
+      .bimap(notOkGetDoc, okGetDoc)
+      .toPromise();
   }
 
   /**
@@ -153,7 +165,7 @@ export default function (ddb) {
     startkey,
     endkey,
     keys,
-    descending
+    descending,
   }) {
     return client
       .listDocuments({
@@ -162,7 +174,7 @@ export default function (ddb) {
         startkey,
         endkey,
         keys,
-        descending
+        descending,
       })
       .bimap(notOk, okDocs)
       .toPromise();
@@ -195,6 +207,6 @@ export default function (ddb) {
     queryDocuments,
     indexDocuments,
     listDocuments,
-    bulkDocuments
+    bulkDocuments,
   });
 }

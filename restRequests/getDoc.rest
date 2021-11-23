@@ -1,1 +1,1 @@
-GET http://localhost:6363/data/firsttable/2
+GET http://localhost:6363/data/firsttable/42
