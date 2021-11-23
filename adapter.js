@@ -2,7 +2,7 @@
 
 import { crocks } from "./deps.js";
 import * as lib from "./lib/dynamodb.js";
-import { notOk, okDoc, okDocs, okId } from "./lib/utils.js";
+import { notOk, okDoc, okDocs, okId, ok, okQuery } from "./lib/utils.js";
 
 const { Async } = crocks;
 
@@ -72,7 +72,7 @@ export default function (ddb) {
    */
 
   function createDatabase(name) {
-    return client.createDatabase(name).bimap(notOk, okDoc).toPromise();
+    return client.createDatabase(name).bimap(notOk, ok).toPromise();
   }
 
   /**
@@ -80,7 +80,7 @@ export default function (ddb) {
    * @returns {Promise<Response>}
    */
   function removeDatabase(name) {
-    return client.removeDatabase(name).bimap(notOk, okDoc).toPromise();
+    return client.removeDatabase(name).bimap(notOk, ok).toPromise();
   }
 
   /**
@@ -126,10 +126,8 @@ export default function (ddb) {
    * @returns {Promise<Response>}
    */
   async function queryDocuments({ query }) {
-    // pk = db, query = partiql
-    // do simple select *
     console.log("query: ", query);
-    return client.queryDocuments(query).bimap(notOk, okDoc).toPromise();
+    return client.queryDocuments(query).bimap(notOk, okQuery).toPromise();
   }
 
   /**

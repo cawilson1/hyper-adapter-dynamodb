@@ -1,0 +1,6 @@
+POST http://localhost:6363/data/firsttable/_query
+content-type: application/json
+
+{
+    
+}
