@@ -5,7 +5,7 @@ import * as lib from "./lib/dynamodb.js";
 import {
   notOk,
   okGetDoc,
-  okDocs,
+  okGetDocs,
   okId,
   ok,
   okQuery,
@@ -63,7 +63,6 @@ const { Async } = crocks;
  * @param {{ DynamoDB: any, factory: any }} aws
  * @returns
  */
-
 export default function (ddb) {
   const client = {
     createDatabase: Async.fromPromise(lib.createDatabase(ddb)),
@@ -80,7 +79,6 @@ export default function (ddb) {
    * @param {string} name
    * @returns {Promise<Response>}
    */
-
   function createDatabase(name) {
     return client.createDatabase(name).bimap(notOk, ok).toPromise();
   }
@@ -151,7 +149,6 @@ export default function (ddb) {
    * @param {IndexDocumentArgs}
    * @returns {Promise<Response>}
    */
-
   async function indexDocuments({ db, name, fields }) {
     // schema json object containing db, name, fields
     // insert into meta doc each new index
@@ -161,7 +158,8 @@ export default function (ddb) {
   /**
    *
    * @param {ListDocumentArgs}
-   * @returns {Promise<Response>}
+   * @returns {Promise<Response>} NOTE: This returns `ok` and `docs`, but
+   *                                    `Response` denotes only `ok`.
    */
   async function listDocuments({
     db,
@@ -180,7 +178,7 @@ export default function (ddb) {
         keys,
         descending,
       })
-      .bimap(notOk, okDocs)
+      .bimap(notOk, okGetDocs)
       .toPromise();
     // pk = db, sk = startkey, endkey, keys
     // use cases:
