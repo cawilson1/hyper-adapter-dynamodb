@@ -11,6 +11,7 @@ import {
   okQuery,
   notOkCreateDoc,
   notOkGetDoc,
+  okDeleteDoc,
 } from "./lib/responseBuilders.js";
 
 const { Async } = crocks;
@@ -129,8 +130,11 @@ export default function (ddb) {
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  function removeDocument({ db, id }) {
-    return client.removeDocument({ db, id }).bimap(notOk, okId).toPromise();
+  async function removeDocument({ db, id }) {
+    return client
+      .removeDocument({ db, id })
+      .bimap(notOk, okDeleteDoc)
+      .toPromise();
   }
 
   /**

@@ -2,6 +2,6 @@ POST http://localhost:6363/data/firsttable
 content-type: application/json
 
 {
-    "id":"42",
+    "id":"1",
     "name":"Tooth fairy42"
 }
