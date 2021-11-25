@@ -12,6 +12,7 @@ import {
   notOkCreateDoc,
   notOkGetDoc,
   okDeleteDoc,
+  okListDocs,
 } from "./lib/responseBuilders.js";
 
 const { Async } = crocks;
@@ -74,6 +75,7 @@ export default function (ddb) {
     removeDocument: Async.fromPromise(lib.removeDocument(ddb)),
     queryDocuments: Async.fromPromise(lib.queryDocuments(ddb)),
     listDocuments: Async.fromPromise(lib.listDocuments(ddb)),
+    bulkDocuments: Async.fromPromise(lib.bulkDocuments(ddb)),
   };
 
   /**
@@ -180,7 +182,7 @@ export default function (ddb) {
         keys,
         descending,
       })
-      .bimap(notOk, okDocs)
+      .bimap(notOk, okListDocs)
       .toPromise();
     // pk = db, sk = startkey, endkey, keys
     // use cases:
@@ -197,8 +199,13 @@ export default function (ddb) {
    * @returns {Promise<Response>}
    */
   async function bulkDocuments({ db, docs }) {
+    console.log(client)
     // could be put or delete
     // pk = db, sk = id from each docs (may need error check that docs have an id)
+    return client
+      .bulkDocuments({ db, docs })
+      .bimap(notOk, okDeleteDoc)
+      .toPromise();
   }
 
   return Object.freeze({
