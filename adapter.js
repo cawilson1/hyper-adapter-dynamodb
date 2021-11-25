@@ -63,6 +63,11 @@ const { Async } = crocks;
  * @param {{ DynamoDB: any, factory: any }} aws
  * @returns
  */
+// NOTE: The `function ...` style here differs from other files in the project
+//       that use the `const ...` anonymous (but not) function style. If you use
+//       TypeScript, then IMO go the `const ...` route because of how easy it is
+//       to handle interfaces, but if you don't, then I'd make it all as
+//       consistent as possible.
 export default function (ddb) {
   const client = {
     createDatabase: Async.fromPromise(lib.createDatabase(ddb)),
@@ -98,6 +103,13 @@ export default function (ddb) {
   function createDocument({ db, id, doc }) {
     return client
       .createDocument({ db, id, doc })
+      // NOTE: These `bimap` handlers sometimes take the name of the action and
+      //       sometimes take the name of the response shape. I think it's worth
+      //       trying to give every action its own (notOkAction, okAction)-style
+      //       of response handlers. If some are the exact same, then they can
+      //       export the same thing at their source (e.g., `okId`). This means
+      //       that if you need to make changes, you don't need to make them at
+      //       this level but the handler level.
       .bimap(notOkCreateDoc, okId)
       .toPromise();
   }
@@ -198,6 +210,23 @@ export default function (ddb) {
     // could be put or delete
     // pk = db, sk = id from each docs (may need error check that docs have an id)
   }
+
+
+// NOTE: Every one of these gets converted from a Promise to an Async and back
+//       to a Promise. I'd consider writing a single generic function that
+//       composes these actions together for you. You've got `Async.fromPromise`
+//       and crocks' `asyncToPromise` that you could leverage somehow so that
+//       all your functions lose the `client` and `.toPromise()` and end up
+//       being just like:
+//
+//       listDocumentsAsync({ ... })
+//         .bimap(notOkListDocuments, okListDocuments)
+//
+//       I guess what I'm really getting at is that the individual functions
+//       don't control getting turned into an Async, but they control turning
+//       themselves back into a Promise, and that difference of control feels
+//       weird to me — like they should just be Asyncs, and something else
+//       handles this conversion control.
 
   return Object.freeze({
     createDatabase,
