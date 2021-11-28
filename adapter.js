@@ -13,6 +13,7 @@ import {
   notOkGetDoc,
   okDeleteDoc,
   okListDocs,
+  okBulkDocs
 } from "./lib/responseBuilders.js";
 
 const { Async } = crocks;
@@ -204,7 +205,7 @@ export default function (ddb) {
     // pk = db, sk = id from each docs (may need error check that docs have an id)
     return client
       .bulkDocuments({ db, docs })
-      .bimap(notOk, okDeleteDoc)
+      .bimap(notOk, okBulkDocs)
       .toPromise();
   }
 
