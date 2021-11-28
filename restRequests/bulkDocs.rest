@@ -1,0 +1,19 @@
+POST http://localhost:6363/data/firsttable/_bulk
+content-type: application/json
+
+[
+    {
+        "id": "1", 
+        "type": "widget"
+    },
+    {
+        "id": "2", 
+        "type": "widget",
+        "_updated":true
+    },
+    {
+        "id": "3",
+        "type": "widget",
+        "_deleted":true
+    } 
+]
