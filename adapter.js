@@ -200,7 +200,6 @@ export default function (ddb) {
    * @returns {Promise<Response>}
    */
   async function bulkDocuments({ db, docs }) {
-    console.log(client)
     // could be put or delete
     // pk = db, sk = id from each docs (may need error check that docs have an id)
     return client
