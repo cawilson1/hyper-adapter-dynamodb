@@ -7,4 +7,4 @@ export { default as validateFactorySchema } from "https://x.nest.land/hyper@1.3.
 export { data as validateDataAdapterSchema } from "https://x.nest.land/hyper-port-data@1.0.11/mod.js";
 
 // std lib deps
-export { assert } from "https://deno.land/std@0.98.0/testing/asserts.ts";
+export { assert, assertEquals } from "https://deno.land/std@0.98.0/testing/asserts.ts";
