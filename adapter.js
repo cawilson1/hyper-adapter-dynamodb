@@ -144,9 +144,10 @@ export default function (ddb) {
    * @param {QueryDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function queryDocuments({ query }) {
-    console.log("query: ", query);
-    return client.queryDocuments(query).bimap(notOk, okQuery).toPromise();
+  async function queryDocuments({ query, db }) {
+    console.log("query: ", query);const log = a => {console.log("QUERY DOCS RESPONSE",a);return a}
+
+    return client.queryDocuments({query,db}).bimap(notOk, okQuery).toPromise().then(log);
   }
 
   /**
