@@ -1,1 +1,1 @@
-DELETE http://localhost:6363/data/createddb?confirm=true
+DELETE http://localhost:6363/data/test?confirm=true
