@@ -13,7 +13,7 @@ import {
   notOkGetDoc,
   okDeleteDoc,
   okListDocs,
-  okBulkDocs
+  okBulkDocs,
 } from "./lib/responseBuilders.js";
 
 const { Async } = crocks;
@@ -71,6 +71,7 @@ export default function (ddb) {
     createDatabase: Async.fromPromise(lib.createDatabase(ddb)),
     removeDatabase: Async.fromPromise(lib.removeDatabase(ddb)),
     createDocument: Async.fromPromise(lib.createDocument(ddb)),
+    indexDocuments: Async.fromPromise(lib.indexDocuments(ddb)),
     retrieveDocument: Async.fromPromise(lib.retrieveDocument(ddb)),
     updateDocument: Async.fromPromise(lib.updateDocument(ddb)),
     removeDocument: Async.fromPromise(lib.removeDocument(ddb)),
@@ -145,9 +146,12 @@ export default function (ddb) {
    * @returns {Promise<Response>}
    */
   async function queryDocuments({ query, db }) {
-    console.log("query: ", query);const log = a => {console.log("QUERY DOCS RESPONSE",a);return a}
+    console.log("query: ", query);
 
-    return client.queryDocuments({query,db}).bimap(notOk, okQuery).toPromise().then(log);
+    return client
+      .queryDocuments({ query, db })
+      .bimap(notOk, okQuery)
+      .toPromise()
   }
 
   /**
@@ -155,11 +159,16 @@ export default function (ddb) {
    * @param {IndexDocumentArgs}
    * @returns {Promise<Response>}
    */
+   async function indexDocuments({ db, name, fields }) {
 
-  async function indexDocuments({ db, name, fields }) {
+  // async function indexDocuments({ db, name, index }) {
     // schema json object containing db, name, fields
     // insert into meta doc each new index
     // tbd
+    return client
+      .indexDocuments({ db, name, fields })
+      .bimap(notOk, ok)
+      .toPromise()
   }
 
   /**

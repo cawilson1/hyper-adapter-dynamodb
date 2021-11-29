@@ -1,0 +1,8 @@
+POST http://localhost:6363/data/testtable/_index
+content-type: application/json
+
+{
+   "fields": ["title", "yearw"],
+   "name": "idx-title-year",
+   "type": "json"
+}
