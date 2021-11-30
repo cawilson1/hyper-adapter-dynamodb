@@ -1,15 +1,19 @@
+import { ApiFactory, DynamoDB, dotenv } from "./deps.js";
 import createAdapter from "./adapter.js";
 import PORT_NAME from "./port_name.js";
-import { ApiFactory, DynamoDB } from "./deps.js";
 
 const env = Deno.env.get;
+const { config } = dotenv;
 
-//additional checks may be necessary for env files
+const { awsAccessKeyId, awsSecretKey, region } = config();
+
+//check environment first
+//check .env file second
 const ddb = new ApiFactory({
   credentials: {
-    awsAccessKeyId: env("awsAccessKeyId"),
-    awsSecretKey: env("awsSecretKey"),
-    region: env("region"),
+    awsAccessKeyId: env("awsAccessKeyId") || awsAccessKeyId,
+    awsSecretKey: env("awsSecretKey") || awsSecretKey,
+    region: env("region") || region,
   },
 }).makeNew(DynamoDB);
 

@@ -7,3 +7,5 @@ export {
   marshall,
   unmarshall
 } from "https://x.nest.land/dynamodb-marshaller-lite@0.2.3/mod.js";
+
+export * as dotenv from "https://deno.land/x/dotenv/mod.ts";
