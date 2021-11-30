@@ -7,11 +7,9 @@ import {
   notOkCreateDb,
   okDestroyDb,
   notOkDestroyDb,
-  notOk,
   okGetDoc,
   notOkUpdateDoc,
   okUpdateDoc,
-  ok,
   okQuery,
   notOkQuery,
   okCreateDoc,
@@ -186,6 +184,12 @@ const adapter = (ddb) => {
    * @returns {Promise<Response>}
    */
 
+  const bulkDocuments = ({ db, docs }) =>
+    client
+      .bulkDocuments({ db, docs })
+      .bimap(notOkBulkDocs, okBulkDocs)
+      .toPromise();
+
   // NOTE: Every one of these gets converted from a Promise to an Async and back
   //       to a Promise. I'd consider writing a single generic function that
   //       composes these actions together for you. You've got `Async.fromPromise`
@@ -201,12 +205,7 @@ const adapter = (ddb) => {
   //       themselves back into a Promise, and that difference of control feels
   //       weird to me — like they should just be Asyncs, and something else
   //       handles this conversion control.
-
-  const bulkDocuments = ({ db, docs }) =>
-    client
-      .bulkDocuments({ db, docs })
-      .bimap(notOkBulkDocs, okBulkDocs)
-      .toPromise();
+  //@rpearce - I'm not sure what this composed fn would look like
 
   return Object.freeze({
     createDatabase,
