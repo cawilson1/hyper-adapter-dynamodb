@@ -187,10 +187,11 @@ const adapter = (ddb) => {
    */
 
   const bulkDocuments = ({ db, docs }) =>
+
     client
       .bulkDocuments({ db, docs })
       .bimap(notOkBulkDocs, okBulkDocs)
-      .toPromise();
+      .toPromise()
 
   // NOTE: Every one of these gets converted from a Promise to an Async and back
   //       to a Promise. I'd consider writing a single generic function that
