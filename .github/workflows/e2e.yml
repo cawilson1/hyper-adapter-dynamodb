@@ -17,6 +17,5 @@ jobs:
           echo awsSecretKey=${{ secrets.AWSSECRETKEY }} >> .env
           echo region=${{ secrets.REGION }} >> .env
           echo DynamoDbTable=${{ secrets.TABLENAME }} >> .env
-          ./scripts/harness.sh
-          HYPER=http://localhost:6363/test deno test --allow-net --allow-env --import-map=https://x.nest.land/hyper-test@0.0.2/import_map.json https://x.nest.land/hyper-test@0.0.2/mod.js
+          ./scripts/harness.sh & HYPER=http://localhost:6363/test deno test --allow-net --allow-env --import-map=https://x.nest.land/hyper-test@0.0.2/import_map.json https://x.nest.land/hyper-test@0.0.2/mod.js
           rm .env
