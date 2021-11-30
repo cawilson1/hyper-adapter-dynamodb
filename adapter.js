@@ -3,16 +3,26 @@
 import { crocks } from "./deps.js";
 import * as lib from "./lib/dynamodb.js";
 import {
+  okCreateDb,
+  notOkCreateDb,
+  okDestroyDb,
+  notOkDestroyDb,
   notOk,
   okGetDoc,
-  okId,
+  notOkUpdateDoc,
+  okUpdateDoc,
   ok,
   okQuery,
+  notOkQuery,
+  okCreateDoc,
   notOkCreateDoc,
   notOkGetDoc,
   okDeleteDoc,
+  notOkDeleteDoc,
   okListDocs,
+  notOkListDocs,
   okBulkDocs,
+  notOkBulkDocs,
 } from "./lib/responseBuilders.js";
 
 const { Async } = crocks;
@@ -64,12 +74,7 @@ const { Async } = crocks;
  * @param {{ DynamoDB: any, factory: any }} aws
  * @returns
  */
-// NOTE: The `function ...` style here differs from other files in the project
-//       that use the `const ...` anonymous (but not) function style. If you use
-//       TypeScript, then IMO go the `const ...` route because of how easy it is
-//       to handle interfaces, but if you don't, then I'd make it all as
-//       consistent as possible.
-export default function (ddb) {
+const adapter = (ddb) => {
   const client = {
     createDatabase: Async.fromPromise(lib.createDatabase(ddb)),
     removeDatabase: Async.fromPromise(lib.removeDatabase(ddb)),
@@ -88,31 +93,23 @@ export default function (ddb) {
    * @returns {Promise<Response>}
    */
   const createDatabase = (name) =>
-    client.createDatabase(name).bimap(notOk, ok).toPromise();
+    client.createDatabase(name).bimap(notOkCreateDb, okCreateDb).toPromise();
 
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
   const removeDatabase = (name) =>
-    client.removeDatabase(name).bimap(notOk, ok).toPromise();
+    client.removeDatabase(name).bimap(notOkDestroyDb, okDestroyDb).toPromise();
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  // NOTE: These `bimap` handlers sometimes take the name of the action and
-  //       sometimes take the name of the response shape. I think it's worth
-  //       trying to give every action its own (notOkAction, okAction)-style
-  //       of response handlers. If some are the exact same, then they can
-  //       export the same thing at their source (e.g., `okId`). This means
-  //       that if you need to make changes, you don't need to make them at
-  //       this level but the handler level.
   const createDocument = ({ db, id, doc }) =>
     client
       .createDocument({ db, id, doc })
-
-      .bimap(notOkCreateDoc, okId)
+      .bimap(notOkCreateDoc, okCreateDoc)
       .toPromise();
 
   /**
@@ -130,21 +127,27 @@ export default function (ddb) {
    * @returns {Promise<Response>}
    */
   const updateDocument = ({ db, id, doc }) =>
-    client.updateDocument({ db, id, doc }).bimap(notOk, okId).toPromise();
+    client
+      .updateDocument({ db, id, doc })
+      .bimap(notOkUpdateDoc, okUpdateDoc)
+      .toPromise();
 
   /**
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
   const removeDocument = ({ db, id }) =>
-    client.removeDocument({ db, id }).bimap(notOk, okDeleteDoc).toPromise();
+    client
+      .removeDocument({ db, id })
+      .bimap(notOkDeleteDoc, okDeleteDoc)
+      .toPromise();
 
   /**
    * @param {QueryDocumentsArgs}
    * @returns {Promise<Response>}
    */
   const queryDocuments = ({ query, db }) =>
-    client.queryDocuments({ query, db }).bimap(notOk, okQuery).toPromise();
+    client.queryDocuments({ query, db }).bimap(notOkQuery, okQuery).toPromise();
 
   /**
    *
@@ -174,7 +177,7 @@ export default function (ddb) {
         keys,
         descending,
       })
-      .bimap(notOk, okListDocs)
+      .bimap(notOkListDocs, okListDocs)
       .toPromise();
 
   /**
@@ -182,7 +185,6 @@ export default function (ddb) {
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
-
 
   // NOTE: Every one of these gets converted from a Promise to an Async and back
   //       to a Promise. I'd consider writing a single generic function that
@@ -199,9 +201,12 @@ export default function (ddb) {
   //       themselves back into a Promise, and that difference of control feels
   //       weird to me — like they should just be Asyncs, and something else
   //       handles this conversion control.
-  const bulkDocuments = ({ db, docs }) =>
-    client.bulkDocuments({ db, docs }).bimap(notOk, okBulkDocs).toPromise();
 
+  const bulkDocuments = ({ db, docs }) =>
+    client
+      .bulkDocuments({ db, docs })
+      .bimap(notOkBulkDocs, okBulkDocs)
+      .toPromise();
 
   return Object.freeze({
     createDatabase,
@@ -215,4 +220,6 @@ export default function (ddb) {
     listDocuments,
     bulkDocuments,
   });
-}
+};
+
+export default adapter;
