@@ -5,7 +5,6 @@ import * as lib from "./lib/dynamodb.js";
 import {
   notOk,
   okGetDoc,
-  okDocs,
   okId,
   ok,
   okQuery,
@@ -65,7 +64,11 @@ const { Async } = crocks;
  * @param {{ DynamoDB: any, factory: any }} aws
  * @returns
  */
-
+// NOTE: The `function ...` style here differs from other files in the project
+//       that use the `const ...` anonymous (but not) function style. If you use
+//       TypeScript, then IMO go the `const ...` route because of how easy it is
+//       to handle interfaces, but if you don't, then I'd make it all as
+//       consistent as possible.
 export default function (ddb) {
   const client = {
     createDatabase: Async.fromPromise(lib.createDatabase(ddb)),
@@ -84,107 +87,85 @@ export default function (ddb) {
    * @param {string} name
    * @returns {Promise<Response>}
    */
-
-  function createDatabase(name) {
-    return client.createDatabase(name).bimap(notOk, ok).toPromise();
-  }
+  const createDatabase = (name) =>
+    client.createDatabase(name).bimap(notOk, ok).toPromise();
 
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
-  function removeDatabase(name) {
-    return client.removeDatabase(name).bimap(notOk, ok).toPromise();
-  }
+  const removeDatabase = (name) =>
+    client.removeDatabase(name).bimap(notOk, ok).toPromise();
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  function createDocument({ db, id, doc }) {
-    return client
+  // NOTE: These `bimap` handlers sometimes take the name of the action and
+  //       sometimes take the name of the response shape. I think it's worth
+  //       trying to give every action its own (notOkAction, okAction)-style
+  //       of response handlers. If some are the exact same, then they can
+  //       export the same thing at their source (e.g., `okId`). This means
+  //       that if you need to make changes, you don't need to make them at
+  //       this level but the handler level.
+  const createDocument = ({ db, id, doc }) =>
+    client
       .createDocument({ db, id, doc })
+
       .bimap(notOkCreateDoc, okId)
       .toPromise();
-  }
 
   /**
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  function retrieveDocument({ db, id }) {
-    return client
+  const retrieveDocument = ({ db, id }) =>
+    client
       .retrieveDocument({ db, id })
       .bimap(notOkGetDoc, okGetDoc)
       .toPromise();
-  }
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  function updateDocument({ db, id, doc }) {
-    return client
-      .updateDocument({ db, id, doc })
-      .bimap(notOk, okId)
-      .toPromise();
-  }
+  const updateDocument = ({ db, id, doc }) =>
+    client.updateDocument({ db, id, doc }).bimap(notOk, okId).toPromise();
 
   /**
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function removeDocument({ db, id }) {
-    return client
-      .removeDocument({ db, id })
-      .bimap(notOk, okDeleteDoc)
-      .toPromise();
-  }
+  const removeDocument = ({ db, id }) =>
+    client.removeDocument({ db, id }).bimap(notOk, okDeleteDoc).toPromise();
 
   /**
    * @param {QueryDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function queryDocuments({ query, db }) {
-    console.log("query: ", query);
-
-    return client
-      .queryDocuments({ query, db })
-      .bimap(notOk, okQuery)
-      .toPromise()
-  }
+  const queryDocuments = ({ query, db }) =>
+    client.queryDocuments({ query, db }).bimap(notOk, okQuery).toPromise();
 
   /**
    *
    * @param {IndexDocumentArgs}
    * @returns {Promise<Response>}
    */
-   async function indexDocuments({ db, name, fields }) {
 
-  // async function indexDocuments({ db, name, index }) {
-    // schema json object containing db, name, fields
-    // insert into meta doc each new index
-    // tbd
-    return client
-      .indexDocuments({ db, name, fields })
-      .bimap(notOk, ok)
-      .toPromise()
-  }
+  // schema json object containing db, name, fields
+  // insert into meta doc each new index
+  // tbd
+  const indexDocuments = ({ db, name, fields }) =>
+    client.indexDocuments({ db, name, fields }).bimap(notOk, ok).toPromise();
 
   /**
    *
    * @param {ListDocumentArgs}
-   * @returns {Promise<Response>}
+   * @returns {Promise<Response>} NOTE: This returns `ok` and `docs`, but
+   *                                    `Response` denotes only `ok`.
    */
-  async function listDocuments({
-    db,
-    limit,
-    startkey,
-    endkey,
-    keys,
-    descending,
-  }) {
-    return client
+  const listDocuments = ({ db, limit, startkey, endkey, keys, descending }) =>
+    client
       .listDocuments({
         db,
         limit,
@@ -195,28 +176,32 @@ export default function (ddb) {
       })
       .bimap(notOk, okListDocs)
       .toPromise();
-    // pk = db, sk = startkey, endkey, keys
-    // use cases:
-    // 1. query using only db => sends all docs in db
-    // 2. limit => sends back first n docs in db
-    // 3. startkey and endkey => sends back all docs in range (inclusive)
-    // 4. keys => sends back all docs with the sk matching each key in array of keys
-    // descending => responses are returned in descending order; used with any
-  }
 
   /**
    *
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function bulkDocuments({ db, docs }) {
-    // could be put or delete
-    // pk = db, sk = id from each docs (may need error check that docs have an id)
-    return client
-      .bulkDocuments({ db, docs })
-      .bimap(notOk, okBulkDocs)
-      .toPromise();
-  }
+
+
+  // NOTE: Every one of these gets converted from a Promise to an Async and back
+  //       to a Promise. I'd consider writing a single generic function that
+  //       composes these actions together for you. You've got `Async.fromPromise`
+  //       and crocks' `asyncToPromise` that you could leverage somehow so that
+  //       all your functions lose the `client` and `.toPromise()` and end up
+  //       being just like:
+  //
+  //       listDocumentsAsync({ ... })
+  //         .bimap(notOkListDocuments, okListDocuments)
+  //
+  //       I guess what I'm really getting at is that the individual functions
+  //       don't control getting turned into an Async, but they control turning
+  //       themselves back into a Promise, and that difference of control feels
+  //       weird to me — like they should just be Asyncs, and something else
+  //       handles this conversion control.
+  const bulkDocuments = ({ db, docs }) =>
+    client.bulkDocuments({ db, docs }).bimap(notOk, okBulkDocs).toPromise();
+
 
   return Object.freeze({
     createDatabase,
