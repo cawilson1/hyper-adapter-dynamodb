@@ -1,8 +1,8 @@
-POST http://localhost:6363/data/test/_index
+POST http://localhost:6363/data/indextest/_index
 content-type: application/json
 
 {
-   "fields": ["title"],
-   "name": "idx-title-year",
+   "fields": ["opinions","hobby"],
+   "name": "idx-opinions-hobby",
    "type": "json"
 }

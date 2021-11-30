@@ -1,4 +1,4 @@
-POST http://localhost:6363/data/test/_query
+POST http://localhost:6363/data/indextest/_query
 content-type: application/json
 
 {

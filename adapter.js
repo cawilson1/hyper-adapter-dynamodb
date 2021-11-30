@@ -21,6 +21,8 @@ import {
   notOkListDocs,
   okBulkDocs,
   notOkBulkDocs,
+  okIdxDocs,
+  notOkIdxDocs
 } from "./lib/responseBuilders.js";
 
 const { Async } = crocks;
@@ -157,7 +159,7 @@ const adapter = (ddb) => {
   // insert into meta doc each new index
   // tbd
   const indexDocuments = ({ db, name, fields }) =>
-    client.indexDocuments({ db, name, fields }).bimap(notOk, ok).toPromise();
+    client.indexDocuments({ db, name, fields }).bimap(notOkIdxDocs, okIdxDocs).toPromise();
 
   /**
    *

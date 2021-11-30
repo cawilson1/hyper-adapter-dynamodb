@@ -1,7 +1,9 @@
-POST http://localhost:6363/data/firsttable
+POST http://localhost:6363/data/indextest
 content-type: application/json
 
 {
-    "id":"1",
-    "name":"Tooth fairy42"
+    "id":"5",
+    "name":"Tooth fairy8",
+    "hobby":"thinking",
+    "opinions":"i disagree"
 }

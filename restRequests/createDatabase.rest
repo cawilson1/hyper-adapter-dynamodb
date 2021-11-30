@@ -1,1 +1,1 @@
-PUT http://localhost:6363/data/createddb
+PUT http://localhost:6363/data/indextest
