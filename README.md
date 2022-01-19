@@ -18,10 +18,10 @@ Everything else is stored in normal document format.
 1. Create a DynamoDB table on AWS. The partion key is string type and named "pk". The sort key is string type and named "sk".
 2. Create an AWS IAM user with programmatic access and the ability to perform actions on this table.
 3. On gitpod, configure 4 environment variables (https://www.gitpod.io/docs/environment-variables)
-awsAccessKeyId
-awsSecretKey
-region 
-DynamoDbTable
+awsAccessKeyId  
+awsSecretKey  
+region  
+DynamoDbTable  
 4. Spin up a gitpod instance by appending "gitpod.io/#" to the repo (gitpod.io/#https://github.com/cawilson1/hyper-adapter-dynamodb). You now have a coding environment with the DynamoDB environment variables injected.
 5. Downgrade deno to a non-conflicting version: `deno upgrade --version 1.15.3`
 6. Start the dev env by running "./scripts/harness.sh"
@@ -36,8 +36,8 @@ DynamoDbTable
 
 ## GH Actions
 Add the following fields as secrets: 
-AWSACCESSKEYID 
-AWSSECRETKEY 
-REGION 
-TABLENAME 
+AWSACCESSKEYID  
+AWSSECRETKEY  
+REGION  
+TABLENAME  
 Ensure that you have provisioned enough throughput for the DynamoDB table to pass the test.
